@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="30fdf25c-80b1-4212-bbd4-23b4f378f7b1" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.ipynb_checkpoints/censored_data-checkpoint.ipynb" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.ipynb_checkpoints/statistical_model_pb-checkpoint.ipynb" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/censored_data.ipynb" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.ipynb_checkpoints/statistical_model_pb-checkpoint.ipynb" afterPath="$PROJECT_DIR$/.ipynb_checkpoints/statistical_model_pb-checkpoint.ipynb" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bayes_nn_pymc.ipynb" afterPath="$PROJECT_DIR$/bayes_nn_pymc.ipynb" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/statistical_model_pb.ipynb" afterPath="$PROJECT_DIR$/statistical_model_pb.ipynb" />
     </list>
     <ignored path="MLExp.iws" />
@@ -25,11 +25,20 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="statistical_model_pb.ipynb" pinned="false" current-in-tab="true">
+      <file leaf-file-name="statistical_model_pb.ipynb" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/statistical_model_pb.ipynb">
           <provider selected="true" editor-type-id="ipnb-editor">
             <state>
               <selected id="2" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="bayes_nn_pymc.ipynb" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/bayes_nn_pymc.ipynb">
+          <provider selected="true" editor-type-id="ipnb-editor">
+            <state>
+              <selected id="4" />
             </state>
           </provider>
         </entry>
@@ -43,6 +52,7 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/statistical_model_pb.ipynb" />
+        <option value="$PROJECT_DIR$/bayes_nn_pymc.ipynb" />
       </list>
     </option>
   </component>
@@ -166,6 +176,13 @@
       <provider selected="true" editor-type-id="ipnb-editor">
         <state>
           <selected id="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bayes_nn_pymc.ipynb">
+      <provider selected="true" editor-type-id="ipnb-editor">
+        <state>
+          <selected id="4" />
         </state>
       </provider>
     </entry>
