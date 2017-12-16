@@ -36,7 +36,7 @@ def getFilteredData(filename):
             ]
         ]
     data["avg_dep"] = round(data["numdep"]/(data["n1"] - data["mars1"]))
-    data["avg_dep"] = data["avg_dep"].replace(np.inf, 0)
+    data["avg_dep"] = data["avg_dep"].replace([np.inf, np.nan], 0)
     data["avg_total_income"] = data["a02650"]/data["n02650"]
     #print(data.head(1))
     data.rename(columns={"n1":"numret","a00100":"agi","a04800":"taxable_income"}, inplace=True)
