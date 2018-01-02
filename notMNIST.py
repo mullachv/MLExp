@@ -145,58 +145,7 @@ def run_bnn_cnn(output):
     input_var = pm.Minibatch(X_train, batch_size=500)
     target_var = pm.Minibatch(y_train, batch_size=500)
 
-    # ADVI minibatches
-    #
-    # minibatch_tensors = [input_var, target_var]
-
-    #create minibatches
-    # def create_minibatch(data, batchsize=500):
-    #     rng = np.random.RandomState(0)
-    #     start_idx = 0
-    #     # Return random samples of batchsize on each iteration
-    #     while True:
-    #         ixs = rng.randint(data.shape[0], size=batchsize)
-    #         yield data[ixs]
-
-    # minibatches = zip(
-    #     create_minibatch(X_train, 500),
-    #     create_minibatch(y_train, 500)
-    # )
-    # total_size = len(y_train)
-
     print("Minibatches prepared: {}".format(time.strftime("%X")))
-
-    '''
-    ADVI sampler
-    '''
-    def run_advi(likelihood, advi_iters=20000):
-        # input_var.set_value(X_train[:500, ...])
-        # target_var.set_value(y_train[:500, ...])
-        #v_params = pm.variational.advi_minibatch(
-        # v_params = pm.ADVI(
-        #     n=advi_iters,
-        #     #minibatch_tensors=minibatch_tensors,
-        #     #minibatch_RVs=[likelihood],
-        #     #minibatches=minibatches,
-        #     #total_size=total_size,
-        #     #learning_rate=1e-2,
-        #     #epsilon=1.0
-        # )
-
-        approx = pm.fit(advi_iters)
-
-        # trace = pm.variational.sample_vp(v_params, draws=500)
-        # trace = pm.sample_approx(v_params, draws=500)
-        trace = approx.sample(draws=500)
-
-        # Predict on test data
-        input_var.set_value(X_test)
-        target_var.set_value(y_test)
-
-        ppc = pm.sample_ppc(trace, samples=100)
-        y_pred = mode(ppc['out'], axis=0).mode[0, :]
-
-        return trace, ppc, y_pred
 
     '''
     Normal Priors on NN weights
@@ -213,50 +162,64 @@ def run_bnn_cnn(output):
                              testval=np.random.normal(size=shape).astype(np.float64),
                              shape=shape)
 
-    def build_ann_conv(init):
-        network = lasagne.layers.InputLayer(shape=(None, 1, 28, 28), input_var=input_var)
-        network = lasagne.layers.Conv2DLayer(network,
-                                             num_filters=32,
-                                             filter_size=(5, 5),
-                                             nonlinearity=lasagne.nonlinearities.tanh,
-                                             W=init
-                                             )
-        network = lasagne.layers.MaxPool2DLayer(network, pool_size=(2, 2))
-        network = lasagne.layers.Conv2DLayer(network,
-                                             num_filters=32,
-                                             filter_size=(5, 5),
-                                             nonlinearity=lasagne.nonlinearities.tanh,
-                                             W=init)
-        network = lasagne.layers.MaxPool2DLayer(network, pool_size=(2, 2))
-        network = lasagne.layers.DenseLayer(network,
-                                            num_units=256,
-                                            nonlinearity=lasagne.nonlinearities.tanh,
-                                            b=init,
-                                            W=init
-                                            )
-        network = lasagne.layers.DenseLayer(network,
-                                            num_units=10,
-                                            nonlinearity=lasagne.nonlinearities.softmax,
-                                            b=init,
-                                            W=init)
-        prediction = lasagne.layers.get_output(network)
+    def build_ann_conv(init, inv, outv):
+        with pm.Model() as cnn:
+            network = lasagne.layers.InputLayer(shape=(None, 1, 28, 28), input_var=inv)
+            network = lasagne.layers.Conv2DLayer(network,
+                                                 num_filters=32,
+                                                 filter_size=(5, 5),
+                                                 nonlinearity=lasagne.nonlinearities.tanh,
+                                                 W=init
+                                                 )
+            network = lasagne.layers.MaxPool2DLayer(network, pool_size=(2, 2))
+            network = lasagne.layers.Conv2DLayer(network,
+                                                 num_filters=32,
+                                                 filter_size=(5, 5),
+                                                 nonlinearity=lasagne.nonlinearities.tanh,
+                                                 W=init)
+            network = lasagne.layers.MaxPool2DLayer(network, pool_size=(2, 2))
+            network = lasagne.layers.DenseLayer(network,
+                                                num_units=256,
+                                                nonlinearity=lasagne.nonlinearities.tanh,
+                                                b=init,
+                                                W=init
+                                                )
+            network = lasagne.layers.DenseLayer(network,
+                                                num_units=10,
+                                                nonlinearity=lasagne.nonlinearities.softmax,
+                                                b=init,
+                                                W=init)
+            prediction = lasagne.layers.get_output(network)
 
-        return pm.Categorical('out', prediction, observed=target_var)
+            out = pm.Categorical('out', prediction, observed=outv, total_size=y_train.shape[0])
 
+        return cnn
+
+    cnn = build_ann_conv(GaussianWeights(), input_var, target_var)
     print("Training started: {}".format(time.strftime("%X")))
 
     '''
     Now, stitch them together and call the neural net
     '''
-    with pm.Model():
-        likelihood = build_ann_conv(GaussianWeights())
-        trace, ppc, y_pred = run_advi(likelihood)
+    with cnn:
+        approx = pm.fit(50)
+        trace = approx.sample(draws=500)
+
+        # Predict on test data
+        input_var.set_value(X_test)
+        target_var.set_value(y_test)
+
+        ppc = pm.sample_ppc(trace, samples=100)
+        y_pred = mode(ppc['out'], axis=0).mode[0, :]
+
 
     # fig = plt.figure()
     # plt.plot(v_params.elbo_vals)
     # sns.despine()
     # plt.savefig(os.path.join(data_dir, 'elbo.png'), bbox_inches='tight')
     # plt.close(fig)
+
+    print("pred: {}, test: {}".format(y_pred.shape, y_test.shape))
 
     fig = plt.figure()
     sns.heatmap(confusion_matrix(y_test, y_pred))
