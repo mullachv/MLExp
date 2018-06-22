@@ -5,4 +5,4 @@ mullachv
 ah3548
 
 # Paper
-[Bayesian Neural Network](https://arxiv.org/pdf/1801.07710)
+[Bayesian Neural Network](https://arxiv.org/abs/1801.07710v2)
